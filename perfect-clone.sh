@@ -3,6 +3,7 @@
 #### Config
 mount_points="/mnt"
 exclude_folders="/mnt/sdb1 /mnt/USB"
+movie_tag="/Plex/Films/"
 
 
 #### Autoupdater
@@ -31,5 +32,19 @@ updatedb --output ${local_folder}source.db --database-root ${mount_points} --pru
 
 #### Display DB infos
 locate -d ${local_folder}source.db -S
+
+#### Create/Update the movies DB
+## Get the full paths of my movies
+locate -d ${local_folder}source.db / | grep "${movie_tag}" > ${local_folder}movies.tmp
+## Store the paths in a sheet
+movie_paths=()
+while IFS= read -r -d $'\0'; do
+  movie_paths+=("$REPLY")
+done <${local_folder}movies.tmp
+rm -f ${local_folder}movies.tmp
+## Create the database for the movies (if not existing)
+
+## Store the infos in the db for each movies
+## MD5, Size, Codec, Languages, Resolution, Filename, Path, Homemade
 
 #### Get remote DB
