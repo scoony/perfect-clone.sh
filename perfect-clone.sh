@@ -2,6 +2,7 @@
 
 #### Config
 mount_points="/mnt"
+exclude_folders="/mnt/sdb1 /mnt/USB"
 
 
 #### Autoupdater
@@ -26,7 +27,7 @@ for current_file in $file{001..999}; do
 done
 
 #### Generate local DB
-updatedb --output ${local_folder}source.db --database-root ${mount_points}
+updatedb --output ${local_folder}source.db --database-root ${mount_points} --prunepaths="${exclude_folders}"
 
 #### Display DB infos
 locate -d ${local_folder}source.db -S
