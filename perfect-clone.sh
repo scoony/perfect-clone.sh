@@ -1,5 +1,9 @@
 #!/bin/bash
 
+#### Config
+mount_points="/mnt"
+
+
 #### Autoupdater
 remote_folder="https://raw.githubusercontent.com/scoony/perfect-clone.sh/main/"
 local_folder="/opt/scripts/perfect-clone/"
@@ -13,7 +17,7 @@ for current_file in $file{001..999}; do
     echo "$current_file : No upgrade required"
   else
     echo "$current_file : Upgrade required"
-    wget --quiet "${remote_folder}${current_file}" -O "${user_path}${current_file}"
+    wget --quiet "${remote_folder}${current_file}" -O "${local_folder}${current_file}"
     if [[ "$current_file" =~ ".sh" ]]; then
       chmod +x "${local_folder}${current_file}"
     fi
@@ -22,3 +26,4 @@ for current_file in $file{001..999}; do
 done
 
 #### Generate DB
+updatedb --output ${local_folder}source.db --database-root ${mount_points}
