@@ -25,5 +25,10 @@ for current_file in $file{001..999}; do
   fi
 done
 
-#### Generate DB
+#### Generate local DB
 updatedb --output ${local_folder}source.db --database-root ${mount_points}
+
+#### Display DB infos
+locate -d ${local_folder}source.db -S
+
+#### Get remote DB
