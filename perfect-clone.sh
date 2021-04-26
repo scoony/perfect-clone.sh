@@ -47,6 +47,6 @@ if [[ ! -f ${local_folder}my_medias.sqlite ]]; then
   sqlite3 ${local_folder}my_medias.sqlite "create table movies (id INTEGER PRIMARY KEY,filename TEXT,size TEXT,codec TEXT,languages TEXT,resolution TEXT,path TEXT,homemade TEXT,md5 TEXT);"
 fi
 ## Store the infos in the db for each movies
-## MD5, Size, Codec, Languages, Resolution, Filename, Path, Homemade
+
 
 #### Get remote DB
