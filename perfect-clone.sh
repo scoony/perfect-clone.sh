@@ -35,7 +35,7 @@ updatedb --output ${local_folder}source.db --database-root ${mount_points} --pru
 #### Display DB infos
 locate -d ${local_folder}source.db -S
 
-#### Create/Update the movies DB
+#### FULL PROCESS: Create/Update the movies DB
 ## Get the full paths of my movies
 locate -d ${local_folder}source.db / | grep "${movie_tag}" > ${local_folder}movies.tmp
 ## Store the paths in a table
@@ -51,21 +51,29 @@ fi
 ## Store the infos in the db for each movies
 movie_count=0
 for movie in "${movie_paths[@]}"; do
-  if [[ ${movie} =~ (.mkv|.avi|.mp4) ]]; then
-    movie_filename=`basename ${movie}`
-    movie_size=`wc -c "${movie}" | awk '{print $1}'`
-    movie_codec=`ffprobe -v quiet -select_streams v:0 -show_entries stream=codec_name -of default=noprint_wrappers=1:nokey=1 ${movie}`
-    movie_languages=`ffprobe -v quiet -show_entries stream=index:stream_tags=language -select_streams a -v 0 -of compact=p=0:nk=1 ${movie}`
-    movie_resolution=`ffprobe -v quiet -select_streams v:0 -show_entries stream=width,height -of csv=p=0 ${movie}`
-    ##movie_md5=`md5sum ${movie} 2>/dev/null | cut -f1 -d" "` ## takes too long (5s for a movie) replaced by creation_time
-    movie_creation_time=`ffprobe -v quiet -show_entries format_tags=creation_time -of csv=p=0 ${movie}`
-    echo -e "Progress: ${movie_count}/${#array[@]}" ## should be on the same line
-    movie_count=$((movie_count+1))
+  movie_filename_local=`basename ${movie}`
+  movie_creation_local=`ffprobe -v quiet -show_entries format_tags=creation_time -of csv=p=0 ${movie}`
+  db_check_filename=`sqlite3 ${local_folder}my_medias.sqlite "SELECT filename FROM movies WHERE filename=\"$movie_filename_local\"";`
+  db_check_creation=`sqlite3 ${local_folder}my_medias.sqlite "SELECT filename FROM movies WHERE ceation_time=\"$movie_creation_local\"";`
+  if [[ ! ${db_check_filename}]] && [[ ! ${db_check_creation} ]]; then
+    if [[ ${movie} =~ (.mkv|.avi|.mp4) ]]; then
+      movie_filename=`basename ${movie}`
+      movie_size=`wc -c "${movie}" | awk '{print $1}'`
+      movie_codec=`ffprobe -v quiet -select_streams v:0 -show_entries stream=codec_name -of default=noprint_wrappers=1:nokey=1 ${movie}`
+      movie_languages=`ffprobe -v quiet -show_entries stream=index:stream_tags=language -select_streams a -v 0 -of compact=p=0:nk=1 ${movie}`
+      movie_resolution=`ffprobe -v quiet -select_streams v:0 -show_entries stream=width,height -of csv=p=0 ${movie}`
+      ##movie_md5=`md5sum ${movie} 2>/dev/null | cut -f1 -d" "` ## takes too long (5s for a movie) replaced by creation_time
+      movie_creation_time=`ffprobe -v quiet -show_entries format_tags=creation_time -of csv=p=0 ${movie}`
+      printf "\rProgress: ${movie_count}/${#array[@]}" ## should be on the same line
+      movie_count=$((movie_count+1))
+    else
+      ##echo -e "Bad File: ${movie}"
+      pushmessage () ## To Do
+      printf "\rProgress: ${movie_count}/${#array[@]}" ## should be on the same line
+      movie_count=$((movie_count+1))
+    fi
   else
-    echo -e "Bad File: ${movie}"
-    pushmessage () ## To Do
-    echo -e "Progress: ${movie_count}/${#array[@]}" ## should be on the same line
-    movie_count=$((movie_count+1))
+    pushmessage "Potential dupe detected... skipped"
   fi
 done
 
