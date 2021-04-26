@@ -53,9 +53,9 @@ for movie in "${movie_paths[@]}; do
   movie_filename=`basename ${movie}`
   movie_size=`wc -c "${movie}" | awk '{print $1}'`
   movie_codec=`ffprobe -v error -select_streams v:0 -show_entries stream=codec_name -of default=noprint_wrappers=1:nokey=1 ${movie}`
-  movie_languages=
+  movie_languages=`ffprobe -show_entries stream=index:stream_tags=language -select_streams a -v 0 -of compact=p=0:nk=1 ${movie}`
   movie_resolution=`ffprobe -v error -select_streams v:0 -show_entries stream=width,height -of csv=p=0 ${movie}`
-  movie_md5=
+  movie_md5=`md5sum ${movie} 2>/dev/null | cut -f1 -d" "` ## takes too long (5s for a movie)
 done
 
 #### Get remote DB
