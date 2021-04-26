@@ -49,6 +49,7 @@ if [[ ! -f ${local_folder}my_medias.sqlite ]]; then
   sqlite3 ${local_folder}my_medias.sqlite "create table movies (id INTEGER PRIMARY KEY,filename TEXT,size TEXT,codec TEXT,languages TEXT,resolution TEXT,path TEXT,homemade TEXT,creation_time TEXT);"
 fi
 ## Store the infos in the db for each movies
+movie_count=0
 for movie in "${movie_paths[@]}"; do
   movie_filename=`basename ${movie}`
   movie_size=`wc -c "${movie}" | awk '{print $1}'`
@@ -57,6 +58,7 @@ for movie in "${movie_paths[@]}"; do
   movie_resolution=`ffprobe -v quiet -select_streams v:0 -show_entries stream=width,height -of csv=p=0 ${movie}`
   ##movie_md5=`md5sum ${movie} 2>/dev/null | cut -f1 -d" "` ## takes too long (5s for a movie) replaced by creation_time
   movie_creation_time=`ffprobe -v quiet -show_entries format_tags=creation_time -of csv=p=0 ${movie}`
+  echo -e "Progress: ${movie_count}/${#array[@]}" ## should be on the same line
 done
 
 #### Get remote DB
