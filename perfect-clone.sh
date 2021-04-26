@@ -49,7 +49,7 @@ if [[ ! -f ${local_folder}my_medias.sqlite ]]; then
   sqlite3 ${local_folder}my_medias.sqlite "create table movies (id INTEGER PRIMARY KEY,filename TEXT,size TEXT,codec TEXT,languages TEXT,resolution TEXT,path TEXT,homemade TEXT,md5 TEXT);"
 fi
 ## Store the infos in the db for each movies
-for movie in "${movie_paths[@]}; do
+for movie in "${movie_paths[@]}"; do
   movie_filename=`basename ${movie}`
   movie_size=`wc -c "${movie}" | awk '{print $1}'`
   movie_codec=`ffprobe -v error -select_streams v:0 -show_entries stream=codec_name -of default=noprint_wrappers=1:nokey=1 ${movie}`
