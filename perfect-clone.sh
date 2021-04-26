@@ -63,9 +63,10 @@ for movie in "${movie_paths[@]}"; do
     movie_count=$((movie_count+1))
   else
     echo -e "Bad File: ${movie}"
-    pushmessage ()
+    pushmessage () ## To Do
     echo -e "Progress: ${movie_count}/${#array[@]}" ## should be on the same line
     movie_count=$((movie_count+1))
+  fi
 done
 
 #### Get remote DB
