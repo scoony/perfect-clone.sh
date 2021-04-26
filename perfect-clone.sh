@@ -36,7 +36,7 @@ locate -d ${local_folder}source.db -S
 #### Create/Update the movies DB
 ## Get the full paths of my movies
 locate -d ${local_folder}source.db / | grep "${movie_tag}" > ${local_folder}movies.tmp
-## Store the paths in a sheet
+## Store the paths in a table
 movie_paths=()
 while IFS= read -r -d $'\0'; do
   movie_paths+=("$REPLY")
