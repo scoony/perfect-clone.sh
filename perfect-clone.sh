@@ -1,5 +1,7 @@
 #!/bin/bash
 
+#### Requirements ffmpeg
+
 #### Config
 mount_points="/mnt"
 exclude_folders="/mnt/sdb1 /mnt/USB"
@@ -50,9 +52,9 @@ fi
 for movie in "${movie_paths[@]}; do
   movie_filename=`basename ${movie}`
   movie_size=`wc -c "${movie}" | awk '{print $1}'`
-  movie_codec=`ffprobe -v error -select_streams v:0 -show_entries stream=codec_name -of default=noprint_wrappers=1:nokey=1 ${movie}
+  movie_codec=`ffprobe -v error -select_streams v:0 -show_entries stream=codec_name -of default=noprint_wrappers=1:nokey=1 ${movie}`
   movie_languages=
-  movie_resolution=
+  movie_resolution=`ffprobe -v error -select_streams v:0 -show_entries stream=width,height -of csv=p=0 ${movie}`
   movie_md5=
 done
 
