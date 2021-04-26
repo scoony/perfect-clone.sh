@@ -43,7 +43,9 @@ while IFS= read -r -d $'\0'; do
 done <${local_folder}movies.tmp
 rm -f ${local_folder}movies.tmp
 ## Create the database for the movies (if not existing)
-
+if [[ ! -f ${local_folder}my_medias.sqlite ]]; then
+  sqlite3 ${local_folder}my_medias.sqlite "create table movies (id INTEGER PRIMARY KEY,filename TEXT,size TEXT,codec TEXT,languages TEXT,resolution TEXT,path TEXT,homemade TEXT,md5 TEXT);"
+fi
 ## Store the infos in the db for each movies
 ## MD5, Size, Codec, Languages, Resolution, Filename, Path, Homemade
 
