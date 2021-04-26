@@ -51,15 +51,21 @@ fi
 ## Store the infos in the db for each movies
 movie_count=0
 for movie in "${movie_paths[@]}"; do
-  movie_filename=`basename ${movie}`
-  movie_size=`wc -c "${movie}" | awk '{print $1}'`
-  movie_codec=`ffprobe -v quiet -select_streams v:0 -show_entries stream=codec_name -of default=noprint_wrappers=1:nokey=1 ${movie}`
-  movie_languages=`ffprobe -v quiet -show_entries stream=index:stream_tags=language -select_streams a -v 0 -of compact=p=0:nk=1 ${movie}`
-  movie_resolution=`ffprobe -v quiet -select_streams v:0 -show_entries stream=width,height -of csv=p=0 ${movie}`
-  ##movie_md5=`md5sum ${movie} 2>/dev/null | cut -f1 -d" "` ## takes too long (5s for a movie) replaced by creation_time
-  movie_creation_time=`ffprobe -v quiet -show_entries format_tags=creation_time -of csv=p=0 ${movie}`
-  echo -e "Progress: ${movie_count}/${#array[@]}" ## should be on the same line
-  movie_count=$((movie_count+1))
+  if [[ ${movie} =~ (.mkv|.avi|.mp4) ]]; then
+    movie_filename=`basename ${movie}`
+    movie_size=`wc -c "${movie}" | awk '{print $1}'`
+    movie_codec=`ffprobe -v quiet -select_streams v:0 -show_entries stream=codec_name -of default=noprint_wrappers=1:nokey=1 ${movie}`
+    movie_languages=`ffprobe -v quiet -show_entries stream=index:stream_tags=language -select_streams a -v 0 -of compact=p=0:nk=1 ${movie}`
+    movie_resolution=`ffprobe -v quiet -select_streams v:0 -show_entries stream=width,height -of csv=p=0 ${movie}`
+    ##movie_md5=`md5sum ${movie} 2>/dev/null | cut -f1 -d" "` ## takes too long (5s for a movie) replaced by creation_time
+    movie_creation_time=`ffprobe -v quiet -show_entries format_tags=creation_time -of csv=p=0 ${movie}`
+    echo -e "Progress: ${movie_count}/${#array[@]}" ## should be on the same line
+    movie_count=$((movie_count+1))
+  else
+    echo -e "Bad File: ${movie}"
+    pushmessage ()
+    echo -e "Progress: ${movie_count}/${#array[@]}" ## should be on the same line
+    movie_count=$((movie_count+1))
 done
 
 #### Get remote DB
