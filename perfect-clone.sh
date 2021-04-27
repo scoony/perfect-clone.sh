@@ -19,6 +19,7 @@ for req_dep in $dependencies; do
     if [[ $OS_NAME == "CentOS" ]]; then yum install $req_dep -y; fi
     if hash $req_dep 2>/dev/null; then
       echo -e "Please install manually $req_dep"
+      pushmessage ()
       exit 1
     fi
   fi
@@ -93,7 +94,7 @@ if [[ $arg_full_scan_movie == TRUE ]]; then
         movie_count=$((movie_count+1))
       else
         ##echo -e "Bad File: ${movie}"
-        pushmessage () ## To Do
+        pushmessage ()
         printf "\rProgress: ${movie_count}/${#array[@]}" ## should be on the same line
         movie_count=$((movie_count+1))
       fi
