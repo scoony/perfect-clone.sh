@@ -1,5 +1,12 @@
 #!/bin/bash
 
+#### Making sure no other process is running already
+my_script=`basename "$0"`
+if pidof -x "$my_script" >/dev/null; then
+    echo "Process already running"
+    exit 1
+fi
+
 #### Config
 mount_points="/mnt"
 exclude_folders="/mnt/sdb1 /mnt/USB"
