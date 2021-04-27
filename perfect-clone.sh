@@ -45,11 +45,22 @@ for current_file in $file{001..999}; do
     echo "$current_file : No upgrade required"
   else
     echo "$current_file : Upgrade required"
-    wget --quiet "${remote_folder}${current_file}" -O "${local_folder}${current_file}"
-    if [[ "$current_file" =~ ".sh" ]]; then
-      chmod +x "${local_folder}${current_file}"
+    if [[ "$current_file" == "$my_script" ]]; then
+      wget --quiet "${remote_folder}${current_file}" -O "${local_folder}${current_file}.new"
+      echo '#!/bin/bash' > ${remote_folder}update-required
+      echo "mv -f ${local_folder}${current_file}.new ${local_folder}${current_file}" >> ${remote_folder}update-required
+      echo "bash ${local_folder}${current_file}" >> ${remote_folder}update-required
+      echo "exit 1" >> ${remote_folder}update-required
+      read -t 3 -p "[UPDATE REQUIRED] $my_script will restart in 3s ..."
+      bash ${remote_folder}update-required
+      exit 1
+    else
+      wget --quiet "${remote_folder}${current_file}" -O "${local_folder}${current_file}"
+      if [[ "$current_file" =~ ".sh" ]]; then
+        chmod +x "${local_folder}${current_file}"
+      fi
+      echo "Update Done"
     fi
-    echo "Update Done"
   fi
 done
 
