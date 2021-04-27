@@ -82,7 +82,7 @@ if [[ $arg_full_scan_movie == TRUE ]]; then
     db_check_filename=`sqlite3 ${local_folder}my_medias.sqlite "SELECT filename FROM movies WHERE filename=\"$movie_filename_local\"";`
     db_check_creation=`sqlite3 ${local_folder}my_medias.sqlite "SELECT filename FROM movies WHERE ceation_time=\"$movie_creation_local\"";`
     if [[ ! ${db_check_filename}]] && [[ ! ${db_check_creation} ]]; then
-      if [[ ${movie} =~ (.mkv|.avi|.mp4) ]]; then
+      if [[ ${movie} == *@(.mkv|.avi|.mp4) ]]; then
         movie_filename=`basename ${movie}`
         movie_size=`wc -c "${movie}" | awk '{print $1}'`
         movie_codec=`ffprobe -v quiet -select_streams v:0 -show_entries stream=codec_name -of default=noprint_wrappers=1:nokey=1 ${movie}`
