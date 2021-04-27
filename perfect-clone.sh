@@ -60,7 +60,7 @@ locate -d ${local_folder}source.db -S
 
 #### Create the databases (if not existing)
 if [[ ! -f ${local_folder}my_medias.sqlite ]]; then
-  sqlite3 ${local_folder}my_medias.sqlite "create table movies (id INTEGER PRIMARY KEY,filename TEXT,size TEXT,codec TEXT,languages TEXT,resolution TEXT,path TEXT,homemade TEXT,creation_time TEXT);"
+  sqlite3 ${local_folder}my_medias.sqlite "create table movies (id INTEGER PRIMARY KEY,filename TEXT,size TEXT,codec TEXT,languages TEXT,resolution TEXT,path TEXT,homemade TEXT,creation_time TEXT,imdb TEXT,tmdb TEXT,title_fr TEXT,title_original TEXT);"
 fi
 
 #### FULL_SCAN_MOVIE ARGUMENT
