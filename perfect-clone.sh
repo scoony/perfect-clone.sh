@@ -91,6 +91,7 @@ if [[ $arg_full_scan_movie == TRUE ]]; then
         ##movie_md5=`md5sum ${movie} 2>/dev/null | cut -f1 -d" "` ## takes too long (5s for a movie) replaced by creation_time
         movie_creation_time=`ffprobe -v quiet -show_entries format_tags=creation_time -of csv=p=0 ${movie}`
         printf "\rProgress: ${movie_count}/${#array[@]}" ## should be on the same line
+        sqlite3 ${local_folder}my_medias.sqlite "insert into movies (filename,size,codec,language,resolution,path,creation_time) values (\"$movie_filename\",\"$movie_size\",\"$movie_codec\",\"$movie_languages\",\"$movie_resolution\",\"$movie\",\"$movie_creation_time\");"
         movie_count=$((movie_count+1))
       else
         ##echo -e "Bad File: ${movie}"
