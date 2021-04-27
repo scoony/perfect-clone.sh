@@ -7,6 +7,13 @@ if pidof -x "$my_script" >/dev/null; then
     exit 1
 fi
 
+#### Checking internet connection
+ping -q -w1 -c1 google.com &>/dev/null && internet="Online" || internet="Offline"
+if [[ $internet == "Offline" ]]; then
+  echo "ERROR: This script requires internet"
+  exit 1
+fi
+
 #### Config
 mount_points="/mnt"
 exclude_folders="/mnt/sdb1 /mnt/USB"
@@ -37,7 +44,8 @@ remote_folder="https://raw.githubusercontent.com/scoony/perfect-clone.sh/main/"
 local_folder="/opt/scripts/perfect-clone/"
  
 source <(curl -s https://raw.githubusercontent.com/scoony/perfect-clone.sh/main/extras/update-files)
- 
+
+rm ${remote_folder}update-required
 for current_file in $file{001..999}; do
   remote_md5=`curl -s ${remote_folder}$current_file | md5sum | cut -f1 -d" "`
   local_md5=`md5sum ${local_folder}$current_file 2>/dev/null | cut -f1 -d" "`
