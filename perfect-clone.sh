@@ -1,12 +1,26 @@
 #!/bin/bash
 
-#### Requirements ffmpeg
-
 #### Config
 mount_points="/mnt"
 exclude_folders="/mnt/sdb1 /mnt/USB"
 movie_tag="/Plex/Films/"
 
+
+#### Requirements
+dependencies="ffmpeg"
+
+for req_dep in $dependencies; do
+  if hash $req_dep 2>/dev/null; then
+    echo -e "[OK] Dependency: $req_dep"
+  else
+    echo -e "[INSTALL] Dependency: $req_dep"
+    apt install $req_dep -y
+    if hash $req_dep 2>/dev/null; then
+      echo -e "Please install manually $req_dep"
+      exit 1
+    fi
+  fi
+done
 
 #### Autoupdater
 remote_folder="https://raw.githubusercontent.com/scoony/perfect-clone.sh/main/"
