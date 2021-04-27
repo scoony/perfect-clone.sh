@@ -7,14 +7,16 @@ movie_tag="/Plex/Films/"
 
 
 #### Requirements
-dependencies="ffmpeg"
+dependencies="ffmpeg" ## Error with tools like mkvtoolnix (no bin with this name)
 
 for req_dep in $dependencies; do
   if hash $req_dep 2>/dev/null; then
     echo -e "[OK] Dependency: $req_dep"
   else
     echo -e "[INSTALL] Dependency: $req_dep"
-    apt install $req_dep -y
+    OS_NAME=`lsb_release -si`
+    if [[ $OS_NAME == "Ubuntu" ]]; then apt install $req_dep -y; fi
+    if [[ $OS_NAME == "CentOS" ]]; then yum install $req_dep -y; fi
     if hash $req_dep 2>/dev/null; then
       echo -e "Please install manually $req_dep"
       exit 1
