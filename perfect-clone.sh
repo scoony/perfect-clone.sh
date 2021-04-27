@@ -28,6 +28,7 @@ for current_file in $file{001..999}; do
     echo "Update Done"
   fi
 done
+
 #### Arguments handled
 [[ "$@" =~ '--full-scan-movie' ]] && arg_full_scan_movie=TRUE
 [[ "$@" =~ '--full-scan-tv' ]] && arg_full_scan_tv=TRUE
@@ -40,7 +41,7 @@ updatedb --output ${local_folder}source.db --database-root ${mount_points} --pru
 #### Display DB infos
 locate -d ${local_folder}source.db -S
 
-# Create the database for the movies (if not existing)
+#### Create the databases (if not existing)
 if [[ ! -f ${local_folder}my_medias.sqlite ]]; then
   sqlite3 ${local_folder}my_medias.sqlite "create table movies (id INTEGER PRIMARY KEY,filename TEXT,size TEXT,codec TEXT,languages TEXT,resolution TEXT,path TEXT,homemade TEXT,creation_time TEXT);"
 fi
