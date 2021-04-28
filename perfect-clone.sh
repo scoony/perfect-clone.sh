@@ -15,6 +15,7 @@ if [[ $internet == "Offline" ]]; then
 fi
 
 #### Config
+local_folder="/opt/scripts/perfect-clone/"
 mount_points="/mnt"
 exclude_folders="/mnt/sdb1 /mnt/USB"
 movie_tag="/Plex/Films/"
@@ -45,8 +46,10 @@ for req_dep in $dependencies; do
 done
 
 #### Autoupdater
+if [[ ! -d ${local_folder ]]; then
+  mkdir -p ${local_folder}
+fi
 remote_folder="https://raw.githubusercontent.com/scoony/perfect-clone.sh/main/"
-local_folder="/opt/scripts/perfect-clone/"
  
 source <(curl -s https://raw.githubusercontent.com/scoony/perfect-clone.sh/main/extras/update-files)
 
@@ -110,7 +113,7 @@ locate -d ${local_folder}source.db -S
 
 #### Create the databases (if not existing)
 if [[ ! -f ${local_folder}my_medias.sqlite ]]; then
-  sqlite3 ${local_folder}my_medias.sqlite "create table movies (id INTEGER PRIMARY KEY,filename TEXT,size TEXT,codec TEXT,languages TEXT,resolution TEXT,path TEXT,homemade TEXT,creation_time TEXT,imdb TEXT,tmdb TEXT,title_fr TEXT,title_original TEXT);"
+  sqlite3 ${local_folder}my_medias.sqlite "create table movies (id INTEGER PRIMARY KEY,filename TEXT,size TEXT,codec TEXT,languages TEXT,resolution TEXT,path TEXT,homemade TEXT,creation_time TEXT,imdb TEXT,tmdb TEXT,title_fr TEXT,title_en TEXT);"
 fi
 
 #### *_MOVIE ARGUMENT
@@ -162,7 +165,12 @@ if [[ $arg_full_scan_movie == TRUE ]] || [[ $arg_filebot_movie == TRUE ]]; then
   if [[ $arg_filebot_movie == TRUE ]]; then
     movie_count=0
     for movie in "${movie_paths[@]}"; do
-      filebot --action test -script fn:amc --db TheMovieDB -non-strict --conflict override --lang fr --encoding UTF-8 --mode rename "/opt/scripts/$movie" --def minFileSize=0 --def "movieFormat=/opt/scripts/TEMP/#0¢{localize.English.n}#1¢{localize.French.n}#2¢{y}#3¢{id}#4¢{imdbid}#5¢" 2>/dev/null > ${local_folder}filebot_infos.txt
+      filebot --action test -script fn:amc --db TheMovieDB -non-strict --conflict override --lang fr --encoding UTF-8 --mode rename "/opt/scripts/$movie" --def minFileSize=0 --def "movieFormat=/opt/scripts/TEMP/#0¢{localize.English.n}#1¢{localize.French.n}#2¢{id}#3¢{imdbid}#4¢" 2>/dev/null > ${local_folder}filebot_movie.txt
+      filebot_title_en=`cat ${local_folder}filebot_movie.txt | grep "TEST" | sed 's/.*#0¢//' | sed 's/#1¢.*//'`
+      filebot_title_fr=`cat ${local_folder}filebot_movie.txt | grep "TEST" | sed 's/.*#1¢//' | sed 's/#2¢.*//'`
+      filebot_tmdb_id=`cat ${local_folder}filebot_movie.txt | grep "TEST" | sed 's/.*#3¢//' | sed 's/#4¢.*//'`
+      filebot_imdb_id=`cat ${local_folder}filebot_movie.txt | grep "TEST" | sed 's/.*#4¢//' | sed 's/#5¢.*//'`
+      rm -f ${local_folder}filebot_movie.txt
       movie_count=$((movie_count+1))
     done
   fi
