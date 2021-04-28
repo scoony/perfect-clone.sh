@@ -160,7 +160,11 @@ if [[ $arg_full_scan_movie == TRUE ]] || [[ $arg_filebot_movie == TRUE ]]; then
 
   ## FILEBOT_MOVIE ARGUMENT
   if [[ $arg_filebot_movie == TRUE ]]; then
-    filebot --action test -script fn:amc --db TheMovieDB -non-strict --conflict override --lang fr --encoding UTF-8 --mode rename "/opt/scripts/$fichier" --def minFileSize=0 --def "movieFormat=/opt/scripts/TEMP/#0¢{localize.English.n}#1¢{localize.French.n}#2¢{y}#3¢{id}#4¢{imdbid}#5¢" 2>/dev/null > ${local_folder}filebot_infos.txt
+    movie_count=0
+    for movie in "${movie_paths[@]}"; do
+      filebot --action test -script fn:amc --db TheMovieDB -non-strict --conflict override --lang fr --encoding UTF-8 --mode rename "/opt/scripts/$movie" --def minFileSize=0 --def "movieFormat=/opt/scripts/TEMP/#0¢{localize.English.n}#1¢{localize.French.n}#2¢{y}#3¢{id}#4¢{imdbid}#5¢" 2>/dev/null > ${local_folder}filebot_infos.txt
+      movie_count=$((movie_count+1))
+    done
   fi
 fi
 
