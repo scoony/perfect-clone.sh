@@ -113,9 +113,9 @@ if [[ ! -f ${local_folder}my_medias.sqlite ]]; then
   sqlite3 ${local_folder}my_medias.sqlite "create table movies (id INTEGER PRIMARY KEY,filename TEXT,size TEXT,codec TEXT,languages TEXT,resolution TEXT,path TEXT,homemade TEXT,creation_time TEXT,imdb TEXT,tmdb TEXT,title_fr TEXT,title_original TEXT);"
 fi
 
-#### FULL_SCAN_MOVIE ARGUMENT
-if [[ $arg_full_scan_movie == TRUE ]]; then
-  ## FULL PROCESS: Create/Update the movies DB
+#### *_MOVIE ARGUMENT
+if [[ $arg_full_scan_movie == TRUE ]] || [[ $arg_filebot_movie == TRUE ]]; then
+  ## Create/Update the movies DB
   ## Get the full paths of my movies
   locate -d ${local_folder}source.db / | grep "${movie_tag}" > ${local_folder}movies.tmp
   ## Store the paths in a table
@@ -124,35 +124,46 @@ if [[ $arg_full_scan_movie == TRUE ]]; then
     movie_paths+=("$REPLY")
   done <${local_folder}movies.tmp
   rm -f ${local_folder}movies.tmp
-  ## Store the infos in the db for each movies
-  movie_count=0
-  for movie in "${movie_paths[@]}"; do
-    movie_filename_local=`basename ${movie}`
-    movie_creation_local=`ffprobe -v quiet -show_entries format_tags=creation_time -of csv=p=0 ${movie}`
-    db_check_filename=`sqlite3 ${local_folder}my_medias.sqlite "SELECT filename FROM movies WHERE filename=\"$movie_filename_local\"";`
-    db_check_creation=`sqlite3 ${local_folder}my_medias.sqlite "SELECT filename FROM movies WHERE ceation_time=\"$movie_creation_local\"";`
-    if [[ ! ${db_check_filename}]] && [[ ! ${db_check_creation} ]]; then
-      if [[ ${movie} == *@(.mkv|.avi|.mp4) ]]; then
-        movie_filename=`basename ${movie}`
-        movie_size=`wc -c "${movie}" | awk '{print $1}'`
-        movie_codec=`ffprobe -v quiet -select_streams v:0 -show_entries stream=codec_name -of default=noprint_wrappers=1:nokey=1 ${movie}`
-        movie_languages=`ffprobe -v quiet -show_entries stream=index:stream_tags=language -select_streams a -v 0 -of compact=p=0:nk=1 ${movie}`
-        movie_resolution=`ffprobe -v quiet -select_streams v:0 -show_entries stream=width,height -of csv=p=0 ${movie}`
-        ##movie_md5=`md5sum ${movie} 2>/dev/null | cut -f1 -d" "` ## takes too long (5s for a movie) replaced by creation_time
-        movie_creation_time=`ffprobe -v quiet -show_entries format_tags=creation_time -of csv=p=0 ${movie}`
-        printf "\rProgress: ${movie_count}/${#array[@]}" ## should be on the same line
-        sqlite3 ${local_folder}my_medias.sqlite "insert into movies (filename,size,codec,language,resolution,path,creation_time) values (\"$movie_filename\",\"$movie_size\",\"$movie_codec\",\"$movie_languages\",\"$movie_resolution\",\"$movie\",\"$movie_creation_time\");"
-        movie_count=$((movie_count+1))
+
+  ## FULL_SCAN_MOVIE ARGUMENT
+  if [[ $arg_full_scan_movie == TRUE ]]; then
+    ## Store the infos in the db for each movies
+    movie_count=0
+    for movie in "${movie_paths[@]}"; do
+      movie_filename_local=`basename ${movie}`
+      movie_creation_local=`ffprobe -v quiet -show_entries format_tags=creation_time -of csv=p=0 ${movie}`
+      db_check_filename=`sqlite3 ${local_folder}my_medias.sqlite "SELECT filename FROM movies WHERE filename=\"$movie_filename_local\"";`
+      db_check_creation=`sqlite3 ${local_folder}my_medias.sqlite "SELECT filename FROM movies WHERE ceation_time=\"$movie_creation_local\"";`
+      if [[ ! ${db_check_filename}]] && [[ ! ${db_check_creation} ]]; then
+        if [[ ${movie} == *@(.mkv|.avi|.mp4) ]]; then
+          movie_filename=`basename ${movie}`
+          movie_size=`wc -c "${movie}" | awk '{print $1}'`
+          movie_codec=`ffprobe -v quiet -select_streams v:0 -show_entries stream=codec_name -of default=noprint_wrappers=1:nokey=1 ${movie}`
+          movie_languages=`ffprobe -v quiet -show_entries stream=index:stream_tags=language -select_streams a -v 0 -of compact=p=0:nk=1 ${movie}`
+          movie_resolution=`ffprobe -v quiet -select_streams v:0 -show_entries stream=width,height -of csv=p=0 ${movie}`
+          ##movie_md5=`md5sum ${movie} 2>/dev/null | cut -f1 -d" "` ## takes too long (5s for a movie) replaced by creation_time
+          movie_creation_time=`ffprobe -v quiet -show_entries format_tags=creation_time -of csv=p=0 ${movie}`
+          printf "\rProgress: ${movie_count}/${#array[@]}" ## should be on the same line
+          sqlite3 ${local_folder}my_medias.sqlite "insert into movies (filename,size,codec,language,resolution,path,creation_time) values (\"$movie_filename\",\"$movie_size\",\"$movie_codec\",\"$movie_languages\",\"$movie_resolution\",\"$movie\",\"$movie_creation_time\");"
+          movie_count=$((movie_count+1))
+        else
+          ##echo -e "Bad File: ${movie}"
+          pushmessage ()
+          printf "\rProgress: ${movie_count}/${#array[@]}" ## should be on the same line
+          movie_count=$((movie_count+1))
+        fi
       else
-        ##echo -e "Bad File: ${movie}"
-        pushmessage ()
-        printf "\rProgress: ${movie_count}/${#array[@]}" ## should be on the same line
-        movie_count=$((movie_count+1))
+        pushmessage "Potential dupe detected... skipped"
       fi
-    else
-      pushmessage "Potential dupe detected... skipped"
-    fi
-  done
+    done
+  fi
+
+  ## FILEBOT_MOVIE ARGUMENT
+  if [[ $arg_filebot_movie == TRUE ]]; then
+    filebot --action test -script fn:amc --db TheMovieDB -non-strict --conflict override --lang fr --encoding UTF-8 --mode rename "/opt/scripts/$fichier" --def minFileSize=0 --def "movieFormat=/opt/scripts/TEMP/#0¢{localize.English.n}#1¢{localize.French.n}#2¢{y}#3¢{id}#4¢{imdbid}#5¢" 2>/dev/null > ${local_folder}filebot_infos.txt
+  fi
 fi
+
+#### FILEBOT_MOVIE ARGUMENT
 
 #### Get remote DB
