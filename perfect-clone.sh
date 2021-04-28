@@ -78,6 +78,25 @@ done
 [[ "$@" =~ '--filebot-movie' ]] && arg_filebot_movie=TRUE
 [[ "$@" =~ '--filebot-tv' ]] && arg_filebot_tv=TRUE
 
+#### Push message function (Pushover)
+push-message() {
+  push_title=$1
+  push_content=$2
+  for user in {1..10}; do
+    destinataire=`eval echo "\\$destinataire_"$user`
+    if [ -n "$destinataire" ]; then
+      curl -s \
+        --form-string "token=$token_app" \
+        --form-string "user=$destinataire" \
+        --form-string "title=$push_title" \
+        --form-string "message=$push_content" \
+        --form-string "html=1" \
+        --form-string "priority=0" \
+        https://api.pushover.net/1/messages.json > /dev/null
+    fi
+  done
+}
+
 #### Generate local DB
 updatedb --output ${local_folder}source.db --database-root ${mount_points} --prunepaths="${exclude_folders}"
 
