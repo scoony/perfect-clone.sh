@@ -46,7 +46,7 @@ for req_dep in $dependencies; do
 done
 
 #### Autoupdater
-if [[ ! -d ${local_folder ]]; then
+if [[ ! -d ${local_folder} ]]; then
   mkdir -p ${local_folder}
 fi
 remote_folder="https://raw.githubusercontent.com/scoony/perfect-clone.sh/main/"
