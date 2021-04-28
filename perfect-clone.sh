@@ -18,6 +18,11 @@ fi
 mount_points="/mnt"
 exclude_folders="/mnt/sdb1 /mnt/USB"
 movie_tag="/Plex/Films/"
+# PushOver config
+token_app=""
+destinataire_1=""
+destinataire_2=""
+titre_push=""
 
 
 #### Requirements
